@@ -1,0 +1,16 @@
+[tool.pyright]
+exclude = [
+  ".*",
+  "__*",
+  "**/typings",
+]
+ignore = ["**/typings"]
+include = ["src"]
+
+pythonPlatform = "MacOS"
+stubPath = "typings"
+typeCheckingMode = "basic"
+typeshedPath = "typings"
+
+reportMissingModuleSource = "none"
+reportUnnecessaryTypeIgnoreComment = "error"

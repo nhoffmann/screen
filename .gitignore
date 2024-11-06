@@ -3,3 +3,4 @@
 assets/
 playground/
 **/typings/
+**/__pycache__

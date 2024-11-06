@@ -1,13 +1,14 @@
 import cv2
+import threading
 from time import sleep
-from send_to_board import send_to_board
+import board
 
 IP_1 = '192.168.1.224'
 IP_2 = '192.168.1.93'
 PORT = 50_000
 
-BOARD_1 = (IP_1, PORT)
-BOARD_2 = (IP_2, PORT)
+board_1 = board.Board(board.BOARD_8_32, IP_1)
+board_2 = board.Board(board.BOARD_8_32, IP_2)
 
 VIDEO_FILE = "../../assets/colors_rotated_smaller_contrast.mp4"
 
@@ -47,12 +48,16 @@ while True:
             index_1 += 1
             index_2 += 1
         
-        # print(arr)
-        send_to_board(BOARD_1, arr1)
-        send_to_board(BOARD_2, arr2)
+        board_1.pixel_array = arr1
+        board_2.pixel_array = arr2
+
+        thread_1 = threading.Thread(target=board_1.send)
+        thread_1.start()
+        thread_2 = threading.Thread(target=board_2.send)
+        thread_2.start()
 
         print("Processed frame: ", frame_number)
         frame_number += 1
 
-        sleep(0.01)
+        sleep(0.04)
         okay, frame = cap.read()

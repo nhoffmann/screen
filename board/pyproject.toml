@@ -5,7 +5,7 @@ exclude = [
   "**/typings",
 ]
 ignore = ["**/typings"]
-include = ["src/board"]
+include = ["src"]
 
 pythonPlatform = "Linux"
 stubPath = "typings"
