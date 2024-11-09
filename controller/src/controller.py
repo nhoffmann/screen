@@ -21,6 +21,10 @@ class Controller:
         for adapter in self.adapters:
             adapter.draw_pixel(x, y, pixel_color)
 
+    def draw_circle(self, x, y, radius, pixel_color):
+        for adapter in self.adapters:
+            adapter.draw_circle(x, y, radius, pixel_color)
+
     def fill(self, pixel_color):
         for adapter in self.adapters:
             adapter.fill(pixel_color)

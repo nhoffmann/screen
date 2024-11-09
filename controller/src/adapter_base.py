@@ -34,6 +34,10 @@ class AdapterBase(ABC):
             pixel_color=pixel_color,
         )
 
+    def draw_circle(self, x, y, radius, pixel_color):
+        for surface in self.surfaces.values():
+            surface.draw_circle(x, y, radius, pixel_color)
+
     def fill(self, pixel_color):
         for surface in self.surfaces.values():
             surface.fill(pixel_color)

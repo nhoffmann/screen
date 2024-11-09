@@ -34,7 +34,14 @@ class AbstractSurface(ABC):
 
     def draw_pixel(self, x, y, pixel_color):
         index = self.pixel_index(x, y)
-        self.pixels[index] = pixel_color
+        if 0 <= index < self.num_pixels:
+            self.pixels[index] = pixel_color
+
+    def draw_circle(self, x, y, radius, pixel_color):
+        for i in range(-radius, radius + 1):
+            for j in range(-radius, radius + 1):
+                if i * i + j * j <= radius * radius:
+                    self.draw_pixel(x + i, y + j, pixel_color)
 
     def pixel_index(self, x, y):
         return y * self.width + x
