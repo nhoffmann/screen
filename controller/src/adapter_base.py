@@ -35,8 +35,37 @@ class AdapterBase(ABC):
         )
 
     def draw_circle(self, x, y, radius, pixel_color):
-        for surface in self.surfaces.values():
-            surface.draw_circle(x, y, radius, pixel_color)
+        """TODO needs anti aliasing"""
+        for i in range(-radius, radius + 1):
+            for j in range(-radius, radius + 1):
+                if i * i + j * j <= radius * radius:
+                    self.draw_pixel(x + i, y + j, pixel_color)
+
+    def draw_rectangle(self, x, y, width, height, pixel_color):
+        for i in range(width):
+            for j in range(height):
+                self.draw_pixel(x + i, y + j, pixel_color)
+
+    def draw_line(self, x1, y1, x2, y2, pixel_color):
+        """Bresenham's line algorithm"""
+        """Should probably be implemented using Wus line algorithm"""
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        sx = 1 if x1 < x2 else -1
+        sy = 1 if y1 < y2 else -1
+        err = dx - dy
+
+        while True:
+            self.draw_pixel(x1, y1, pixel_color)
+            if x1 == x2 and y1 == y2:
+                break
+            e2 = 2 * err
+            if e2 > -dy:
+                err -= dy
+                x1 += sx
+            if e2 < dx:
+                err += dx
+                y1 += sy
 
     def fill(self, pixel_color):
         for surface in self.surfaces.values():
@@ -47,9 +76,16 @@ class AdapterBase(ABC):
         pass
 
     def _surface_and_position_for_pixel(self, x, y):
-        pixel_to_surface = self._pixel_to_surface[self._pixel_index(x, y)]
+        index = self._pixel_index(x, y)
+        if index is None:
+            return None, None
+        if index >= len(self._pixel_to_surface):
+            return None, None
+
+        pixel_to_surface = self._pixel_to_surface[index]
         if pixel_to_surface is None:
             return None, None
+
         surface_name, pixel_position = pixel_to_surface
         return self.surfaces[surface_name], pixel_position
 
@@ -72,8 +108,8 @@ class AdapterBase(ABC):
     def _calculate_size(self):
         right_most_pixel, bottom_most_pixel = [], []
         for surface in self.surfaces.values():
-            right_most_pixel.append(surface.position.x + surface.width)
-            bottom_most_pixel.append(surface.position.y + surface.height)
+            right_most_pixel.append(surface.position.x + surface.size.width)
+            bottom_most_pixel.append(surface.position.y + surface.size.height)
 
         self.width = max(right_most_pixel)
         self.height = max(bottom_most_pixel)
@@ -94,9 +130,11 @@ class AdapterBase(ABC):
 
     def _surface_contains_pixel(self, surface, x, y):
         return (
-            surface.position.x <= x < surface.position.x + surface.width
-            and surface.position.y <= y < surface.position.y + surface.height
+            surface.position.x <= x < surface.position.x + surface.size.width
+            and surface.position.y <= y < surface.position.y + surface.size.height
         )
 
     def _pixel_index(self, x, y):
+        if x < 0 or y < 0 or x >= self.width or y >= self.height:
+            return None
         return y * self.width + x

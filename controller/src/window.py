@@ -13,14 +13,16 @@ class Window(AbstractSurface):
         super().__init__(name, dimension, position_tuple)
 
         self.screen = pygame.Surface(
-            (self.width * PIXEL_SIZE, self.height * PIXEL_SIZE)
+            (self.size.width * PIXEL_SIZE, self.size.height * PIXEL_SIZE)
         )
 
-        log.info("Initialized Window: width=%s, height=%s", self.width, self.height)
+        log.info(
+            "Initialized Window: width=%s, height=%s", self.size.width, self.size.height
+        )
 
     def write(self):
-        for y in range(self.height):
-            for x in range(self.width):
+        for y in range(self.size.height):
+            for x in range(self.size.width):
                 index = self.pixel_index(x, y)
                 color = self.pixels[index]
                 pygame.draw.rect(
@@ -35,4 +37,4 @@ class Window(AbstractSurface):
                 )
 
     def __repr__(self):
-        return f"Window(width='{self.width}', height='{self.height}')"
+        return f"Window(width='{self.size.width}', height='{self.size.height}')"

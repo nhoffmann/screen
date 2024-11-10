@@ -14,6 +14,8 @@ import color
 
 log = logging.getLogger(__name__)
 
+FPS = 25
+
 board_adapter = BoardAdapter("config.toml")
 window_adapter = AdapterWindow("config.toml")
 
@@ -21,7 +23,7 @@ controller = Controller(window_adapter.width, window_adapter.height)
 controller.add_adapter(board_adapter)
 controller.add_adapter(window_adapter)
 
-WAIT = 1 / 25
+WAIT = 1 / FPS
 
 circles = []
 
@@ -66,12 +68,40 @@ def random_blinky_lights(pixel_color):
     sleep(WAIT)
 
 
-def exploding_circles(circle_color):
-    if random.random() < 0.1:
-        origin_x = random.randint(0, controller.width - 1)
-        origin_y = random.randint(0, controller.height - 1)
+def draw_rectangle(pixel_color, growth_rate=0):
+    log.info("Drawing rectangle with growth rate %s", growth_rate)
+    controller.draw_rectangle(
+        controller.width // 2,
+        controller.height // 2,
+        1 + growth_rate,
+        1 + growth_rate,
+        pixel_color,
+    )
+    controller.write()
+    sleep(WAIT)
 
-        radius = 1
+
+def draw_circle(pixel_color, growth_rate=0):
+    log.info("Drawing circle with growth rate %s", growth_rate)
+    controller.draw_circle(
+        controller.width // 2,
+        controller.height // 2,
+        1 + growth_rate,
+        pixel_color,
+    )
+    controller.write()
+    sleep(WAIT)
+
+
+def exploding_circles(circles, circle_color):
+    """Draws circles that grow until they reach a certain size and then disappear"""
+    """Not working as expected yet"""
+    origin_x = random.randint(0, controller.width - 1)
+    origin_y = random.randint(0, controller.height - 1)
+
+    radius = 3
+
+    if random.random() < 0.1:
         log.info("Adding circle at x=%s, y=%s, radius=%s", origin_x, origin_y, radius)
 
         circles.append([origin_x, origin_y, radius])
@@ -85,7 +115,7 @@ def exploding_circles(circle_color):
             circle[1],
             circle[2],
         )
-        controller.draw_circle(origin_x, origin_y, radius, color.COLOR_RED)
+        controller.draw_circle(origin_x, origin_y, radius, circle_color)
 
     log.info("Growing circles")
     for circle in circles:
@@ -97,8 +127,12 @@ def exploding_circles(circle_color):
             circle[2],
         )
 
-    log.info("Removing circles that are too big")
-    circles = [circle for circle in circles if circle[2] < 20]
+    circle_count_before_removal = len(circles)
+    circles = [circle for circle in circles if circle[2] <= 20]
+    log.info(
+        "Removing circles that are too big %s",
+        circle_count_before_removal - len(circles),
+    )
 
     controller.write()
 
@@ -132,6 +166,8 @@ def draw_video(video_path):
 
 
 try:
+    circles = []
+    growth_rate = 0
     while True:
         # light_up_one_pixel_at_a_time(color.COLOR_BLUE)
 
@@ -141,13 +177,21 @@ try:
 
         # random_blinky_lights(color.COLOR_BLUE)
 
-        # exploding_circles(color.COLOR_RED)
+        # exploding_circles(circles, color.COLOR_RED)
+
+        if growth_rate < controller.height // 2:
+            growth_rate += 2
+        else:
+            growth_rate = 0
+            controller.clear()
+            controller.write()
+        draw_circle(color.COLOR_BLUE, growth_rate)
 
         # draw_video("../../assets/bw_lines_smaller_contrast.mp4")
         # draw_video("../../assets/colors_rotated_smaller_contrast.mp4")
         # draw_video("../../assets/hyperspace_rotated_smaller_contrast.mp4")
         # draw_video("../../assets/planes_rotated_smaller_contrast.mp4")
-        draw_video("../../assets/spiral_rotated_smaller_contrast.mp4")
+        # draw_video("../../assets/spiral_rotated_smaller_contrast.mp4")
 
 
 except KeyboardInterrupt:

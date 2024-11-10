@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 import logging
 import color
@@ -6,42 +7,42 @@ import color
 log = logging.getLogger(__name__)
 
 
+@dataclass
 class Position:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    x: int
+    y: int
 
-    def __repr__(self):
-        return f"Position(x={self.x}, y={self.y})"
+
+@dataclass
+class Size:
+    width: int
+    height: int
+
+    def area(self):
+        return self.width * self.height
 
 
 class AbstractSurface(ABC):
-    def __init__(self, name, dimension, position_tuple):
+    def __init__(self, name, dimension, position):
         self.name = name
-        self.width = dimension[0]
-        self.height = dimension[1]
-        self.position = Position(position_tuple[0], position_tuple[1])
-        self.num_pixels = self.width * self.height
+        self.size = Size(dimension[0], dimension[1])
+        self.position = Position(position[0], position[1])
 
-        self.pixels = [color.COLOR_BLACK] * self.width * self.height
+        self.pixels = [color.COLOR_BLACK] * self.size.area()
 
     @abstractmethod
     def write(self):
         pass
 
     def fill(self, pixel_color):
-        self.pixels = [pixel_color] * self.num_pixels
+        self.pixels = [pixel_color] * len(self.pixels)
 
     def draw_pixel(self, x, y, pixel_color):
         index = self.pixel_index(x, y)
-        if 0 <= index < self.num_pixels:
+        if index is not None:
             self.pixels[index] = pixel_color
 
-    def draw_circle(self, x, y, radius, pixel_color):
-        for i in range(-radius, radius + 1):
-            for j in range(-radius, radius + 1):
-                if i * i + j * j <= radius * radius:
-                    self.draw_pixel(x + i, y + j, pixel_color)
-
     def pixel_index(self, x, y):
-        return y * self.width + x
+        if x < 0 or x >= self.size.width or y < 0 or y >= self.size.height:
+            return None
+        return y * self.size.width + x

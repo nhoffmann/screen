@@ -25,37 +25,47 @@ class Board(AbstractSurface):
         self.port = port
 
     def write(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((self.ip, self.port))
-            pixel_array_encoded = self._json_encode(self.pixels)
-            message = self._create_message(pixel_array_encoded)
-            s.sendall(message)
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.connect((self.ip, self.port))
+                pixel_array_encoded = self._json_encode(self.pixels)
+                message = self._create_message(pixel_array_encoded)
+                s.sendall(message)
+        except ConnectionRefusedError as e:
+            log.error(
+                f"Could not connect to board {self.name} at {self.ip}:{self.port}"
+            )
 
     def pixel_index(self, x, y):
+        if x < 0 or x >= self.size.width or y < 0 or y >= self.size.height:
+            return None
+
         if self.board_type == BOARD_8_32:
             return self._pixel_index_8_32(x, y)
         elif self.board_type == BOARD_16_32:
             return self._pixel_index_16_32(x, y)
+        else:
+            raise Exception("Unsupported board size: ", self.board_type)
 
     def _pixel_index_16_32(self, x, y):
-        if x <= (int(self.width / 2) - 1):
+        if x <= (int(self.size.width / 2) - 1):
             if y % 2 > 0:
                 return (y * 8) + x
             else:
                 return (y * 8) + (7 - x)
         else:
             if y % 2 > 0:
-                return (self.height * 2 - (1 + y)) * 8 + x % 8
+                return (self.size.height * 2 - (1 + y)) * 8 + x % 8
             else:
-                return (self.height * 2 - (1 + y)) * 8 + (
-                    (int(self.width / 2) - 1) - x % 8
+                return (self.size.height * 2 - (1 + y)) * 8 + (
+                    (int(self.size.width / 2) - 1) - x % 8
                 )
 
     def _pixel_index_8_32(self, x, y):
         if y % 2 > 0:
-            return y * self.width + x
+            return y * self.size.width + x
         else:
-            return y * self.width + (self.width - 1 - x)
+            return y * self.size.width + (self.size.width - 1 - x)
 
     def _json_encode(self, obj):
         return json.dumps(obj).encode()
