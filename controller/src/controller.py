@@ -21,9 +21,20 @@ class Controller:
         for adapter in self.adapters:
             adapter.draw_pixel(x, y, pixel_color)
 
-    def draw_circle(self, x, y, radius, pixel_color):
+    def draw_circle(self, center_x, center_y, radius, pixel_color):
         for adapter in self.adapters:
-            adapter.draw_circle(x, y, radius, pixel_color)
+            adapter.draw_circle(center_x, center_y, radius, pixel_color)
+
+    def draw_rectangle(self, center_x, center_y, width, height, pixel_color):
+        offset_x = center_x - width // 2
+        offset_y = center_y - height // 2
+
+        for adapter in self.adapters:
+            adapter.draw_rectangle(offset_x, offset_y, width, height, pixel_color)
+
+    def draw_line(self, x1, y1, x2, y2, pixel_color):
+        for adapter in self.adapters:
+            adapter.draw_line(x1, y1, x2, y2, pixel_color)
 
     def fill(self, pixel_color):
         for adapter in self.adapters:
