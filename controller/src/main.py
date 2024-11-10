@@ -69,7 +69,7 @@ def random_blinky_lights(pixel_color):
 
 
 def draw_rectangle(pixel_color, growth_rate=0):
-    log.info("Drawing rectangle with growth rate %s", growth_rate)
+    log.debug("Drawing rectangle with growth rate %s", growth_rate)
     controller.draw_rectangle(
         controller.width // 2,
         controller.height // 2,
@@ -82,7 +82,7 @@ def draw_rectangle(pixel_color, growth_rate=0):
 
 
 def draw_circle(pixel_color, growth_rate=0):
-    log.info("Drawing circle with growth rate %s", growth_rate)
+    log.debug("Drawing circle with growth rate %s", growth_rate)
     controller.draw_circle(
         controller.width // 2,
         controller.height // 2,
