@@ -36,6 +36,10 @@ class Controller:
         for adapter in self.adapters:
             adapter.draw_line(x1, y1, x2, y2, pixel_color)
 
+    def draw_char(self, x, y, char, pixel_color, font_type="3x5", pixel_size=1):
+        for adapter in self.adapters:
+            adapter.draw_char(x, y, char, pixel_color, font_type, pixel_size)
+
     def fill(self, pixel_color):
         for adapter in self.adapters:
             adapter.fill(pixel_color)

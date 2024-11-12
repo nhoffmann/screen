@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 import toml
 import logging
 
+from font import FONT_3x5, FONT_5x7
+
 log = logging.getLogger(__name__)
 
 
@@ -70,6 +72,29 @@ class AdapterBase(ABC):
     def fill(self, pixel_color):
         for surface in self.surfaces.values():
             surface.fill(pixel_color)
+
+    def draw_char(self, x, y, char, pixel_color, font_type="3x5", pixel_size=1):
+        if font_type == "3x5":
+            font = FONT_3x5
+        elif font_type == "5x7":
+            font = FONT_5x7
+        else:
+            raise ValueError(f"Font type not supported: {font_type}")
+
+        if char not in font:
+            raise ValueError(f"Character not in font: {char}")
+
+        for i, row in enumerate(font[char]):
+            for j, bit in enumerate(row):
+                if bit:
+                    for k in range(pixel_size):
+                        for l in range(pixel_size):
+                            self.draw_pixel(
+                                x + j * pixel_size + k,
+                                y + i * pixel_size + l,
+                                pixel_color,
+                            )
+                    # self.draw_pixel(x + j, y + i, pixel_color)
 
     @abstractmethod
     def write(self):
