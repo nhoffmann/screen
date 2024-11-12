@@ -35,6 +35,8 @@ class Board(AbstractSurface):
             log.error(
                 f"Could not connect to board {self.name} at {self.ip}:{self.port}"
             )
+        except OSError as e:
+            log.error(f"{e}: {self.name} at {self.ip}:{self.port}")
 
     def pixel_index(self, x, y):
         if x < 0 or x >= self.size.width or y < 0 or y >= self.size.height:
@@ -86,7 +88,7 @@ class Board(AbstractSurface):
     ### Experimental
 
     def send_as_hex(self):
-        """Experimental: Converting the pixel tupel array into a hextring and sending
+        """Experimental: Converting the pixel tupel array into a hexstring and sending
         that over the wire. Unfortunately, micropython can not decode the data
         fast enough.
         """
