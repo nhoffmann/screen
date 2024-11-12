@@ -41,4 +41,4 @@ The "screen" is defined as a continous pixel screen over all available (register
 
 * The controller keeps track of the available boards
 * The controller knows about the position of every board
-* The controller consumes animations and sends the appropriate pixel data to the connected boards
+* The controller provides functionality to draw pixel data onto the screen. After drawing the pixel data it provides functionality to send the appropriate pixel data to the connected boards
