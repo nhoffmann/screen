@@ -1,3 +1,4 @@
 opencv-python
 toml
 pygame
+numpy
