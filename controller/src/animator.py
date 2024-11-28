@@ -70,11 +70,11 @@ class MovementProcessor(esper.Processor):
             position.x += velocity.x
             position.y += velocity.y
 
-            # # Bounce off
-            # if position.x < 0 or position.x > self.size.width:
-            #     velocity.x *= -1
-            # if position.y < 0 or position.y > self.size.height:
-            #     velocity.y *= -1
+            # Bounce off
+            if position.x < 0 or position.x > self.size.width:
+                velocity.x *= -1
+            if position.y < 0 or position.y > self.size.height:
+                velocity.y *= -1
 
 
 class RenderRectanglesProcessor(esper.Processor):
@@ -120,7 +120,7 @@ class CreateRectangleProcessor(esper.Processor):
         self.height = height
 
     def process(self):
-        if random.randint(0, 100) < 30:
+        if random.randint(0, 100) < 20:
             create_rectangle(
                 random.randint(0, self.width),
                 random.randint(0, self.height),
@@ -128,11 +128,7 @@ class CreateRectangleProcessor(esper.Processor):
                 1,
                 0,
                 0,
-                (
-                    random.randint(0, 255),
-                    random.randint(0, 255),
-                    random.randint(0, 255),
-                ),
+                color.COLOR_BLUE,
                 1,
             )
 
@@ -261,9 +257,9 @@ def main():
     render_chars_processor = RenderCharsProcessor(controller)
     growth_processor = GrowthProcessor()
 
-    # spiral_rectangles(controller.height)
+    spiral_rectangles(controller.height)
     # exploding_rectangles(controller.width, controller.height)
-    einseinseins(controller.width)
+    # einseinseins(controller.width)
 
     try:
         while True:
@@ -274,12 +270,12 @@ def main():
             render_chars_processor.process()
             growth_processor.process()
 
-            position_xs = []
-            for ent, (position, velocity) in esper.get_components(Position, Velocity):
-                position_xs.append(position.x)
+            # position_xs = []
+            # for ent, (position, velocity) in esper.get_components(Position, Velocity):
+            #     position_xs.append(position.x)
 
-            if len(position_xs) and max(position_xs) < 0:
-                einseinseins(controller.width)
+            # if len(position_xs) and max(position_xs) < 0:
+            #     einseinseins(controller.width)
 
             controller.write()
             time.sleep(1 / FPS)

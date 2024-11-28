@@ -179,16 +179,16 @@ try:
 
         # exploding_circles(circles, color.COLOR_RED)
 
-        if growth_rate < controller.height // 2:
-            growth_rate += 2
-        else:
-            growth_rate = 0
-            controller.clear()
-            controller.write()
-        draw_circle(color.COLOR_BLUE, growth_rate)
+        # if growth_rate < controller.height // 2:
+        #     growth_rate += 2
+        # else:
+        #     growth_rate = 0
+        #     controller.clear()
+        #     controller.write()
+        # draw_circle(color.COLOR_BLUE, growth_rate)
 
         # draw_video("../../assets/bw_lines_smaller_contrast.mp4")
-        # draw_video("../../assets/colors_rotated_smaller_contrast.mp4")
+        draw_video("../../assets/colors_rotated_smaller_contrast.mp4")
         # draw_video("../../assets/hyperspace_rotated_smaller_contrast.mp4")
         # draw_video("../../assets/planes_rotated_smaller_contrast.mp4")
         # draw_video("../../assets/spiral_rotated_smaller_contrast.mp4")
