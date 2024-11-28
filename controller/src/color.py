@@ -9,4 +9,10 @@ COLOR_GREEN = (0, 255, 0)
 
 
 def opacity(color: tuple, opacity: float) -> tuple:
+    """Return a given color with a given opacity."""
     return tuple(int(color[i] * opacity) for i in range(3))
+
+
+def random():
+    """Return a random color."""
+    return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
