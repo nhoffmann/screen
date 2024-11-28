@@ -1,5 +1,4 @@
 from board import Board
-import toml
 import logging
 import threading
 from adapter_base import AdapterBase

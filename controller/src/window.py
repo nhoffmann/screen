@@ -17,7 +17,7 @@ class Window(AbstractSurface):
         )
 
         log.info(
-            "Initialized Window: width=%s, height=%s", self.size.width, self.size.height
+            f"Initialized Window: name={self.name} width={self.size.width}, height={self.size.height}"
         )
 
     def write(self):

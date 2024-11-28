@@ -59,12 +59,6 @@ class AdapterWindow(AdapterBase):
             pygame.display.update()
 
     def add_surface(self, name, dimension, position, _):
-        log.info(
-            "Adding window: name=%s, dimension=%s, position=%s",
-            name,
-            dimension,
-            position,
-        )
         self.surfaces[name] = Window(name, dimension, position)
 
     def __repr__(self):
