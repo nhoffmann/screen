@@ -1,57 +1,48 @@
 from machine import Pin
 from neopixel import NeoPixel
-from time import sleep
-import re 
+import time
 
-OFF = (0, 0, 0)
-WHITE_255 = (255, 255, 255)
-WHITE_64 = (64, 64, 64)
-White_1 = (1, 1, 1)
+_OFF = const((0, 0, 0))
+_WHITE_64 = const((64, 64, 64))
+
 
 class LedMatrix:
     def __init__(self, width=8, height=32, pin=2):
-        self.width = width 
-        self.height = height 
+        self.width = width
+        self.height = height
         self._num_pixels = self.width * self.height
         self._pin = pin
         self._np = None
 
-        self._create_led_matrix()
+        pin = Pin(4, Pin.OUT)
+        self._np = NeoPixel(pin, self._num_pixels, bpp=3)
         print("LED matrix ready.")
 
-
-    def _create_led_matrix(self):
-        pin = Pin(2, Pin.OUT) 
-        self._np = NeoPixel(pin, self._num_pixels, bpp=3)
-
     def _write_all(self, color_tuple):
-        for i in range(self._num_pixels):		
-            self._np[i] = color_tuple
+        self.fill(color_tuple)
         self._np.write()
-        
-    def write(self, color_array):
+
+    def fill(self, color_tuple):
+        self._np.fill(color_tuple)
+
+    def clear(self):
+        self._np.fill(_OFF)
+
+    def write_array(self, color_array):
+        # start = time.ticks_us()
         for i in range(len(color_array)):
             self._np[i] = color_array[i]
         self._np.write()
-
-    def write_from_hex(self, hex_string):
-        step = 6 
-        hex_arr = [hex_string[i:i+step] for i in range(0, len(hex_string), step)] 
-        for i in range(len(hex_arr)):
-            self._np[i] = self._hex2rgb(hex_arr[i])
-        self._np.write()
+        # print(f"write_array takes: {time.ticks_us() - start} us")
 
     def blackout(self):
-        self._write_all(OFF)
+        self._write_all(_OFF)
 
     def whiteout(self):
-        self._write_all(WHITE_64)
+        self._write_all(_WHITE_64)
 
     def test(self):
-        for k in range(3):
+        for _ in range(3):
             self.whiteout()
-            sleep(0.2)
+            time.sleep(0.2)
             self.blackout()
-
-    def _hex2rgb(self, hexcode):
-        return tuple(int(hexcode[i:i+2], 16) for i in (0, 2, 4))
