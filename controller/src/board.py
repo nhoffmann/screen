@@ -2,8 +2,11 @@ import json
 import struct
 import socket
 import logging
+import numpy as np
 
 from surface_base import AbstractSurface
+import color
+from client import TcpClient
 
 log = logging.getLogger(__name__)
 
@@ -24,12 +27,18 @@ class Board(AbstractSurface):
         self.ip = ip
         self.port = port
 
+        self.client = TcpClient(self.ip, self.port)
+
+    def write_through_client(self):
+        self.client.send(self.pixels.tolist())
+
     def write(self):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.connect((self.ip, self.port))
-                pixel_array_encoded = self._json_encode(self.pixels)
-                message = self._create_message(pixel_array_encoded)
+
+                message = self._create_message(self.pixels.tolist())
+
                 s.sendall(message)
         except ConnectionRefusedError as e:
             log.error(
@@ -49,8 +58,15 @@ class Board(AbstractSurface):
         else:
             raise Exception("Unsupported board size: ", self.board_type)
 
+    def _drawn_pixel_map(self):
+        drawn_pixel_map = {}
+        for index, pixel_color in enumerate(self.pixels):
+            if not np.array_equal(pixel_color, np.array(color.COLOR_BLACK)):
+                drawn_pixel_map[index] = pixel_color.tolist()
+        return drawn_pixel_map
+
     def _pixel_index_16_32(self, x, y):
-        if x <= (int(self.size.width / 2) - 1):
+        if x <= (self.size.width // 2 - 1):
             if y % 2 > 0:
                 return (y * 8) + x
             else:
@@ -60,7 +76,7 @@ class Board(AbstractSurface):
                 return (self.size.height * 2 - (1 + y)) * 8 + x % 8
             else:
                 return (self.size.height * 2 - (1 + y)) * 8 + (
-                    (int(self.size.width / 2) - 1) - x % 8
+                    (self.size.width // 2 - 1) - x % 8
                 )
 
     def _pixel_index_8_32(self, x, y):
@@ -69,12 +85,15 @@ class Board(AbstractSurface):
         else:
             return y * self.size.width + (self.size.width - 1 - x)
 
-    def _json_encode(self, obj):
-        return json.dumps(obj).encode()
+    def _create_message(self, payload):
+        flat_payload = [val for pixel in payload for val in pixel]
 
-    def _create_message(self, content_bytes):
-        message_header = struct.pack(">H", len(content_bytes))
-        return message_header + content_bytes
+        message_header = struct.pack(">H", len(flat_payload))
+
+        pixel_format = "B" * len(flat_payload)
+        message_content = struct.pack(pixel_format, *flat_payload)
+
+        return message_header + message_content
 
     def _supported_boards(self):
         return [
@@ -84,29 +103,3 @@ class Board(AbstractSurface):
 
     def __repr__(self):
         return f"Board(name='{self.name}', board_type={self.board_type}, position={self.position}, ip='{self.ip}', port={self.port})"
-
-    ### Experimental
-
-    def send_as_hex(self):
-        """Experimental: Converting the pixel tupel array into a hexstring and sending
-        that over the wire. Unfortunately, micropython can not decode the data
-        fast enough.
-        """
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((self.ip, self.port))
-            pixel_array_encoded = self.hex_encode(self.pixel_array)
-            message = self.create_message(pixel_array_encoded)
-            print(message)
-            s.sendall(message)
-
-    def hex_encode(self, arr):
-        hexarr = ""
-        for rgb_tuple in arr:
-            hexarr += self._rgb2hex(rgb_tuple[0], rgb_tuple[1], rgb_tuple[2])
-        return hexarr.encode()
-
-    def _rgb2hex(self, r, g, b):
-        return "{:02x}{:02x}{:02x}".format(r, g, b)
-
-    def _hex2rgb(self, hexcode):
-        return tuple(int(hexcode[i : i + 2], 16) for i in (0, 2, 4))
